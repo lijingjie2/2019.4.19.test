@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			li {
+				list-style: none;
+			}
+			
+			#div1 {
+				width: 850px;
+				height: 500px;
+				margin: 50px auto;
+				overflow: hidden;
+				position: relative;
+			}
+			
+			#div1 ul li {
+				height: 500px;
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 0;
+			}
+			
+			#div1 ol {
+				position: absolute;
+				right: 10%;
+				bottom: 10px;
+				z-index: 6
+			}
+			
+			#div1 ol li {
+				width: 20px;
+				height: 20px;
+				background: #fff;
+				margin-left: 5px;
+				float: left;
+				line-height: 20px;
+				text-align: center;
+				cursor: pointer;
+			}
+			
+			#div1 ol li.ac {
+				background: red;
+				color: #fff;
+				z-index: 6;
+			}
+			
+			#div1>a {
+				text-decoration: none;
+				position: absolute;
+				top: 50%;
+				margin-top: -10px;
+				height: 40px;
+				line-height: 32px;
+				text-align: center;
+				width: 40px;
+				font-size: 40px;
+				vertical-align: middle;
+				color: #fff;
+				background: rgb(0, 0, 0);
+				z-index: 6;
+			}
+			
+			#goPrev {
+				left: 0;
+			}
+			
+			#goNext {
+				right: 0;
+			}
+			
+			img {
+				width: 850px;
+				height: 500px;
+			}
+			
+			#div1 ul li.ani {
+				animation-name: play;
+				animation-duration: 2s;
+				z-index: 5;
+			}
+			
+			#div1 ul li.ani1 {
+				animation-name: play1;
+				animation-duration: 2s;
+				z-index: 5;
+			}
+			
+			#div1 ul li.reAni {
+				animation-name: replay;
+				animation-duration: 2s;
+				z-index: 5;
+			}
+			
+			#div1 ul li.reAni1 {
+				animation-name: replay1;
+				animation-duration: 2s;
+				z-index: 5;
+			}
+			
+			@keyframes play {
+				from {
+					left: -100%;
+				}
+				to {
+					left: 0px;
+				}
+			}
+			
+			@keyframes play1 {
+				from {
+					left: 0;
+				}
+				to {
+					left: 100%;
+				}
+			}
+			
+			@keyframes replay {
+				from {
+					left: 100%;
+				}
+				to {
+					left: 0px;
+				}
+			}
+			
+			@keyframes replay1 {
+				from {
+					left: 0;
+				}
+				to {
+					left: -100%;
+				}
+			}
+			
+			#div1 ul li.ac {
+				z-index: 6;
+				left: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="div1">
+			<ul>
+				<li class="ac">
+					<a href="javascript:alert(0);"><img src="img/1.jpg" /></a>
+				</li>
+				<li>
+					<a href="javascript:alert(1);"><img src="img/2.jpg" /></a>
+				</li>
+				<li>
+					<a href="javascript:alert(2);"><img src="img/3.jpg" /></a>
+				</li>
+				<li>
+					<a href="javascript:alert(3);"><img src="img/4.jpg" /></a>
+				</li>
+				<li>
+					<a href="javascript:alert(4);"><img src="img/5.jpg" /></a>
+				</li>
+			</ul>
+			<ol>
+				<li class="ac">1</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+				<li>5</li>
+			</ol>
+			<a href="javascript:;" id="goPrev">&laquo;</a>
+			<a href="javascript:;" id="goNext">&raquo;</a>
+		</div>
+		<script src="js/myjstools/tools.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			function Lunbo(container) {
+				this.container = container;
+				this.last = 0; //上一次按钮
+				this.index = 0; //当前按钮
+				this.prel = 0; //前次按钮
+				this.btn = container.querySelector("ol").children;
+				this.img = container.querySelector("ul").querySelectorAll("li");
+				this.goPrev = container.querySelector("#goPrev");
+				this.goNext = container.querySelector("#goNext");
+				this.initBtn();
+
+			}
+			Lunbo.prototype = {
+				constructor: Lunbo,
+				initBtn: function() {
+					this.btnBind();
+					this.goprev();
+					this.gonext();
+					this.Timer();
+					this.Clear();
+					this.reStart();
+				},
+				btnBind: function() { //绑定btn点击按钮
+					for(let i = 0; i < this.btn.length; i++) {
+						this.btn[i].onclick = () => {
+							i > this.index ? this.change(i) : this.rechange(i);
+						}
+					}
+				},
+				goprev: function() { //绑定向前按钮
+					this.goPrev.onclick = () => {
+						this.index = this.index - 1 < 0 ? this.btn.length - 1 : this.index - 1;
+						this.rechange(this.index);
+					}
+				},
+				gonext: function() { //绑定向后按钮
+					this.goNext.onclick = () => {
+						this.index = this.index + 1 > this.btn.length - 1 ? 0 : this.index + 1;
+						this.change(this.index);
+					}
+				},
+				change: function(i) { //向下走，去掉上一个，和上上个，添加当前
+					this.index = i;
+					this.img[this.prel].classList.remove("ani1");
+					this.img[this.last].classList.remove("ani");
+					this.img[this.prel].classList.remove("reAni1");
+					this.img[this.last].classList.remove("reAni");
+
+					this.img[i].classList.add("ani");
+					this.img[this.last].classList.add("ani1");
+
+					this.btn[this.last].classList.remove("ac");
+					this.btn[i].classList.add("ac");
+					this.img[this.last].classList.remove("ac");
+					this.img[i].classList.add("ac");
+
+					this.prel = this.last;
+					this.last = i;
+				},
+				rechange: function(i) {
+					this.index = i;
+					this.img[this.prel].classList.remove("reAni1");
+					this.img[this.last].classList.remove("reAni");
+					this.img[this.prel].classList.remove("ani1");
+					this.img[this.last].classList.remove("ani");
+
+					this.img[i].classList.add("reAni");
+					this.img[this.last].classList.add("reAni1");
+
+					this.btn[this.last].classList.remove("ac");
+					this.btn[i].classList.add("ac");
+					this.img[this.last].classList.remove("ac");
+					this.img[i].classList.add("ac");
+
+					this.prel = this.last;
+					this.last = i;
+				},
+				Timer: function() {
+					this.timer = setInterval(() => {
+						this.goNext.onclick();
+					}, 2000)
+				},
+				Clear: function() {
+					this.container.onmouseover = () => {
+						clearInterval(this.timer);
+					}
+				},
+				reStart: function() { //鼠标out时重启定时器
+					this.container.onmouseout = () => {
+						this.Timer();
+					}
+				}
+
+			}
+			new Lunbo(document.querySelector("#div1"));
+		</script>
+	</body>
+
+</html>
